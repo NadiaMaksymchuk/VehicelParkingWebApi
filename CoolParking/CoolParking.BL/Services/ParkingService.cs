@@ -1,10 +1,13 @@
 ﻿using CoolParking.BL.Interfaces;
 using CoolParking.BL.Models;
+using CoolParking.BL.Utility;
 using Fare;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 using System.Timers;
 
 namespace CoolParking.BL.Services
@@ -33,8 +36,17 @@ namespace CoolParking.BL.Services
             _withdrawTimer.Start();
         }
 
-        public void AddVehicle(Vehicle vehicle)
+        public ResponseHendler<Vehicle> AddVehicle(Vehicle vehicle)
         {
+            if(!ValidateVehicleId(vehicle.Id))
+            {
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "Not added! Incorect vehicle id format!",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
             var count = _parking.Vehicles.Where(x => x != null).ToList().Count;
             if (count < 10)
             {
@@ -45,12 +57,55 @@ namespace CoolParking.BL.Services
                 else
                 {
                     _parking.Vehicles.Add(vehicle);
+                    return new ResponseHendler<Vehicle>()
+                    {
+                        StatusCode = HttpStatusCode.Created,
+                        Data = vehicle
+                    };
                 }
             }
             else
             {
                 throw new InvalidOperationException();
             }
+        }
+
+        public ResponseHendler<Vehicle> GetByIdVehicle(string id)
+        {
+            if (!ValidateVehicleId(id))
+            {
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "Incorect vehicle id format",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
+            Vehicle vehicle = _parking.Vehicles.FirstOrDefault(x => x.Id == id);
+
+            if(vehicle is null)
+            {
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "Vehicle not found",
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            }
+
+            return new ResponseHendler<Vehicle>()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Data = vehicle
+            };
+        }
+
+        private bool ValidateVehicleId(string id)
+        {
+            Regex regex = new Regex(Vehicle.RegexString);
+            if(regex.IsMatch(id))
+                return true;
+            else
+                return false;
         }
 
         public void WritteAllTransactionInLog(Object source, ElapsedEventArgs e)
@@ -113,7 +168,7 @@ namespace CoolParking.BL.Services
         }
 
         public int GetCapacity()
-        {
+            {
             return (int)Settings.SettingsData["sizeOfParking"];
         }
 
@@ -154,9 +209,27 @@ namespace CoolParking.BL.Services
             return _logService.Read();
         }
 
-        public void RemoveVehicle(string vehicleId)
+        public ResponseHendler<Vehicle> RemoveVehicle(string vehicleId)
         {
+            if (!ValidateVehicleId(vehicleId))
+            {
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "Incorect vehicle id format",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
             var removeVehicle = _parking.Vehicles.FirstOrDefault(x => x.Id == vehicleId);
+
+            if (removeVehicle is null)
+            {
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "Vehicle not found",
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            }
 
             if (removeVehicle is null)
             {
@@ -169,18 +242,40 @@ namespace CoolParking.BL.Services
             else
             {
                 _parking.Vehicles.Remove(removeVehicle);
+                return new ResponseHendler<Vehicle>()
+                {
+                    StatusCode = HttpStatusCode.NoContent
+                };
             }
         }
 
-        public void TopUpVehicle(string vehicleId, decimal sum)
+        public ResponseHendler<Vehicle> TopUpVehicle(string vehicleId, decimal sum)
         {
-            var topUpVehicle = _parking.Vehicles.FirstOrDefault(x => x.Id == vehicleId);
-            if (sum < 0 || topUpVehicle == null)
+            if (!ValidateVehicleId(vehicleId) || sum < 0)
             {
-                throw new ArgumentException();
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "Incorect vehicle id format",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
             }
-            else
-                topUpVehicle.Balance += sum;
+
+            var topUpVehicle = _parking.Vehicles.FirstOrDefault(x => x.Id == vehicleId);
+
+            if (topUpVehicle is null)
+            {
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "Vehicle not found",
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            }
+            topUpVehicle.Balance += sum;
+            return new ResponseHendler<Vehicle>()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Data = topUpVehicle
+            };
         }
 
         public void GetAllVehicle()

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using CoolParking.BL.Interfaces;
+using CoolParking.BL.Services;
 
 namespace CoolParking.WebAPI
 {
@@ -15,14 +17,9 @@ namespace CoolParking.WebAPI
         {
             services.AddMvc(option => option.EnableEndpointRouting = false);
 
-            var mapperConfig = new MapperConfiguration(mc =>
-            {
-                //mc.AddProfile(new MappingProfile());
-            });
-
-
-            IMapper mapper = mapperConfig.CreateMapper();
-            services.AddSingleton(mapper);
+            services.AddSingleton<IParkingService, ParkingService>();
+            services.AddSingleton<ITimerService, TimerService>();
+            services.AddSingleton<ILogService>(_ => new LogService($"{Directory.GetCurrentDirectory()}/Transactions.log"));
 
             services.AddControllers();
             services.AddEndpointsApiExplorer();
@@ -30,6 +27,13 @@ namespace CoolParking.WebAPI
 
 
             services.AddCors();
+
+            services.AddMvcCore(options =>
+            {
+                options.RequireHttpsPermanent = true;
+                options.RespectBrowserAcceptHeader = true;
+            })
+            .AddFormatterMappings();
         }
 
         public void Configure(IApplicationBuilder app, Microsoft.Extensions.Hosting.IHostingEnvironment env)

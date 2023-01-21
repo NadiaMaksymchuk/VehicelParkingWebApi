@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using CoolParking.BL.Models;
+using CoolParking.BL.Utility;
 
 namespace CoolParking.BL.Interfaces
 {
@@ -10,10 +11,11 @@ namespace CoolParking.BL.Interfaces
         int GetCapacity();
         int GetFreePlaces();
         ReadOnlyCollection<Vehicle> GetVehicles();
-        void AddVehicle(Vehicle vehicle);
-        void RemoveVehicle(string vehicleId);
-        void TopUpVehicle(string vehicleId, decimal sum);
+        ResponseHendler<Vehicle> AddVehicle(Vehicle vehicle);
+        ResponseHendler<Vehicle> RemoveVehicle(string vehicleId);
+        ResponseHendler<Vehicle> TopUpVehicle(string vehicleId, decimal sum);
         TransactionInfo[] GetLastParkingTransactions();
         string ReadFromLog();
+        ResponseHendler<Vehicle> GetByIdVehicle(string id);
     }
 }
