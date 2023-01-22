@@ -25,5 +25,10 @@ namespace CoolParking.BL.Models
 
             return numberCar.Generate();
         }
+
+        public override string ToString()
+        {
+            return $"Id: {Id}; Vehicle type:  {VehicleType};  Balance: {Balance}\n";
+        }
     }
 }

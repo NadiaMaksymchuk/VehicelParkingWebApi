@@ -18,7 +18,7 @@ namespace CoolParking.WebAPI
             services.AddMvc(option => option.EnableEndpointRouting = false);
 
             services.AddSingleton<IParkingService, ParkingService>();
-            services.AddSingleton<ITimerService, TimerService>();
+            services.AddTransient<ITimerService, TimerService>();
             services.AddSingleton<ILogService>(_ => new LogService($"{Directory.GetCurrentDirectory()}/Transactions.log"));
 
             services.AddControllers();

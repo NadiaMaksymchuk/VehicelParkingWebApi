@@ -47,7 +47,7 @@ namespace CoolParking
                         if (curItem < 0) curItem = Convert.ToInt16(MenuText.Length - 1);
                     }
                 }
-            } while (key.KeyChar != 13);
+            } while (key.Key != ConsoleKey.Enter);
 
             return curItem;
 
