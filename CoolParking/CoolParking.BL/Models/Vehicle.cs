@@ -1,4 +1,5 @@
 ﻿using Fare;
+using Newtonsoft.Json;
 
 namespace CoolParking.BL.Models
 {

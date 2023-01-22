@@ -1,7 +1,5 @@
-﻿using CoolParking.BL.Models;
-using System;
+﻿using Newtonsoft.Json;
 using System.Text;
-using System.Text.Json;
 
 namespace CoolParking.FormatResponce.AbstractClass
 {
@@ -16,18 +14,16 @@ namespace CoolParking.FormatResponce.AbstractClass
 
         protected static T Deserializer<T>(string data)
         {
-            return JsonSerializer.Deserialize<T>(data);
+            return JsonConvert.DeserializeObject<T>(data, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects
+            });
         }
 
         protected static StringContent Serializer<T>(T entity)
         {
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(entity);
             return new StringContent(json, Encoding.UTF8, "application/json");
-        }
-
-        protected static string VehicleFormat(Vehicle vehicle)
-        {
-            return $"Id: {vehicle.Id} | Balance: {vehicle.Balance} | Vehucle type: {vehicle.VehicleType}";
         }
     }
 }

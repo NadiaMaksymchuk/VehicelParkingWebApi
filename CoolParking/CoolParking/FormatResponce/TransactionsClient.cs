@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CoolParking.BL.Models;
 using CoolParking.FormatResponce.AbstractClass;
-using CoolParking.BL.Models;
+using System.Net;
 
 namespace CoolParking.FormatResponce
 {
@@ -28,7 +22,7 @@ namespace CoolParking.FormatResponce
 
                 foreach (var transaction in transactions)
                 {
-                    Console.WriteLine($"Created: {transaction.Created} | Vehicle id: {transaction.VehicleId} | Summa: {transaction.Sum}");
+                    Console.WriteLine(transaction.ToString());
                 }
             }
             else
@@ -45,9 +39,8 @@ namespace CoolParking.FormatResponce
             if (responce.StatusCode == HttpStatusCode.OK)
             {
                 var data = _httpClient.GetStringAsync(url).Result;
-                var transactions = Deserializer<string>(data);
 
-                Console.WriteLine(transactions);
+                Console.WriteLine(data);
             }
             else
             {

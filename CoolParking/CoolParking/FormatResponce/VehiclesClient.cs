@@ -22,7 +22,7 @@ namespace CoolParking.FormatResponce
 
                 foreach (var vehicle in vehicles)
                 {
-                    Console.WriteLine(VehicleFormat(vehicle));
+                    Console.WriteLine(vehicle.ToString());
                 }
             }
             else
@@ -41,7 +41,7 @@ namespace CoolParking.FormatResponce
                 var data = _httpClient.GetStringAsync(url).Result;
                 var vehicle = Deserializer<Vehicle>(data);
 
-                Console.WriteLine(VehicleFormat(vehicle));
+                Console.WriteLine(vehicle.ToString());
             }
             else
             {

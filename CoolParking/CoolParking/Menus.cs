@@ -152,7 +152,7 @@ namespace CoolParking
                     Console.WriteLine("Enter balance:");
                     decimal balance = decimal.Parse(Console.ReadLine());
 
-                    _vehiclesClient.AddVehicle(new Vehicle(id, vehicleType, balance));
+                    _vehiclesClient.AddVehicle(new Vehicle (id, vehicleType, balance));
                     Console.ReadKey();
                     break;
                 case 1: FirstMenu(); break;

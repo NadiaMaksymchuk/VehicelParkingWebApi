@@ -1,7 +1,6 @@
 ﻿using CoolParking.BL.Interfaces;
 using CoolParking.BL.Models;
 using CoolParking.BL.Utility;
-using Fare;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -38,7 +37,7 @@ namespace CoolParking.BL.Services
 
         public ResponseHendler<Vehicle> AddVehicle(Vehicle vehicle)
         {
-            if(!ValidateVehicleId(vehicle.Id))
+            if (!ValidateVehicleId(vehicle.Id))
             {
                 return new ResponseHendler<Vehicle>()
                 {
@@ -83,7 +82,7 @@ namespace CoolParking.BL.Services
 
             Vehicle vehicle = _parking.Vehicles.FirstOrDefault(x => x.Id == id);
 
-            if(vehicle is null)
+            if (vehicle is null)
             {
                 return new ResponseHendler<Vehicle>()
                 {
@@ -102,7 +101,7 @@ namespace CoolParking.BL.Services
         private bool ValidateVehicleId(string id)
         {
             Regex regex = new Regex(Vehicle.RegexString);
-            if(regex.IsMatch(id))
+            if (regex.IsMatch(id))
                 return true;
             else
                 return false;
@@ -125,7 +124,7 @@ namespace CoolParking.BL.Services
         public static void GetBerthage(Object source, ElapsedEventArgs e)
         {
             var existenVehicle = _parking.Vehicles.Where(x => x != null).ToList();
-            if(existenVehicle.Count != 0)
+            if (existenVehicle.Count != 0)
             {
                 foreach (var vehicle in existenVehicle)
                 {
@@ -168,7 +167,7 @@ namespace CoolParking.BL.Services
         }
 
         public int GetCapacity()
-            {
+        {
             return (int)Settings.SettingsData["sizeOfParking"];
         }
 
@@ -178,23 +177,9 @@ namespace CoolParking.BL.Services
             return (int)(Settings.SettingsData["sizeOfParking"] - count.Count);
         }
 
-        public string GetFreePlacesForClient()
-        {
-            var count = _parking.Vehicles.Where(x => x != null).ToList();
-            return $"{count.Count+1}";
-        }
-
         public TransactionInfo[] GetLastParkingTransactions()
         {
             return _transactionInfos.ToArray();
-        }
-
-        public void GetLastParkingTransactionsToString()
-        {
-            foreach (var transactionInfo in _transactionInfos)
-            {
-                Console.WriteLine($"Created: {transactionInfo.Created}; Vehicle Id:  {transactionInfo.VehicleId};  Summa: {transactionInfo.Sum}\n");
-            }
         }
 
         public ReadOnlyCollection<Vehicle> GetVehicles()
@@ -231,11 +216,7 @@ namespace CoolParking.BL.Services
                 };
             }
 
-            if (removeVehicle is null)
-            {
-                throw new ArgumentException();
-            }
-            else if (removeVehicle.Balance <= 0)
+            if (removeVehicle.Balance <= 0)
             {
                 throw new InvalidOperationException();
             }
@@ -277,15 +258,6 @@ namespace CoolParking.BL.Services
                 Data = topUpVehicle
             };
         }
-
-        public void GetAllVehicle()
-        {
-            foreach (var vehicle in _parking.Vehicles)
-            {
-                Console.WriteLine($"Id: {vehicle.Id}; Type: {vehicle.VehicleType}; Balance: {vehicle.Balance}");
-            }
-        }
-
 
         public void Dispose()
         {
