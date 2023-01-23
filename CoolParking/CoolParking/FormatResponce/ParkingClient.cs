@@ -5,7 +5,7 @@ namespace CoolParking.FormatResponce
 {
     internal class ParkingClient : BaseClass
     {
-        private const string BaseURL = "https://localhost:7177/api/parking";
+        private const string BaseURL = "https://localhost:5001/api/parking";
 
         public ParkingClient() : base() { }
 
