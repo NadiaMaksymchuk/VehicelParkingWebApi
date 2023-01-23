@@ -37,11 +37,11 @@ namespace CoolParking.BL.Services
 
         public ResponseHendler<Vehicle> AddVehicle(Vehicle vehicle)
         {
-            if (!ValidateVehicleId(vehicle.Id))
+            if (!ValidateVehicleId(vehicle.Id) || vehicle.Balance <= 0)
             {
                 return new ResponseHendler<Vehicle>()
                 {
-                    Error = "Not added! Incorect vehicle id format!",
+                    Error = "Not added! Incorect vehicle data!",
                     StatusCode = HttpStatusCode.BadRequest
                 };
             }
@@ -232,6 +232,11 @@ namespace CoolParking.BL.Services
 
         public ResponseHendler<Vehicle> TopUpVehicle(string vehicleId, decimal sum)
         {
+            if (sum <= 0)
+            {
+                throw new ArgumentException();
+            }
+
             if (!ValidateVehicleId(vehicleId) || sum < 0)
             {
                 return new ResponseHendler<Vehicle>()
@@ -251,6 +256,9 @@ namespace CoolParking.BL.Services
                     StatusCode = HttpStatusCode.NotFound
                 };
             }
+
+            
+
             topUpVehicle.Balance += sum;
             return new ResponseHendler<Vehicle>()
             {

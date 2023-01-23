@@ -5,6 +5,7 @@ using CoolParking.BL.Models;
 using Xunit;
 using FakeItEasy;
 using CoolParking.BL.Services;
+using System.Net;
 
 namespace CoolParking.BL.Tests
 {
@@ -77,7 +78,9 @@ namespace CoolParking.BL.Tests
         [InlineData("AA-0001-AA", VehicleType.Bus, -100)]
         public void NewVehicle_WhenWrongArguments_ThenThrowArgumentException(string id, VehicleType vehicleType, decimal balance)
         {
-            Assert.Throws<ArgumentException>(() => new Vehicle(id, vehicleType, balance));
+            var vehicle = new Vehicle(id, vehicleType, balance);
+            var result = _parkingService.AddVehicle(vehicle);
+            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode); ;
         }
 
         [Fact]
@@ -96,8 +99,9 @@ namespace CoolParking.BL.Tests
         {
             var vehicle = new Vehicle("AA-0001-AA", VehicleType.Bus, 100);
             _parkingService.AddVehicle(vehicle);
+            var result = _parkingService.RemoveVehicle("AA-0002-AA");
 
-            Assert.Throws<ArgumentException>(() => _parkingService.RemoveVehicle("AA-0002-AA"));
+            Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
         }
 
         [Fact]
@@ -123,8 +127,9 @@ namespace CoolParking.BL.Tests
         {
             var vehicle = new Vehicle("AA-0001-AA", VehicleType.Bus, 100);
             _parkingService.AddVehicle(vehicle);
+            var result = _parkingService.TopUpVehicle("AA-0002-AA", 100);
 
-            Assert.Throws<ArgumentException>(() => _parkingService.TopUpVehicle("AA-0002-AA", 100));
+            Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
         }
 
         [Fact]
