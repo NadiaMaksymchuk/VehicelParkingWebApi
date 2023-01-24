@@ -160,6 +160,51 @@ namespace CoolParking.BL.Tests
         }
 
         [Fact]
+        public void GetLastParkingTransactions_WhenTruckAndBusAfter2WithdrawTimeouts_ThenTransactionsSumIs17Test2()
+        {
+            var vehicle1 = new Vehicle("AA-0001-AA", VehicleType.Truck, 100);
+            var vehicle2 = new Vehicle("AA-0002-AA", VehicleType.Bus, 100);
+            _parkingService.AddVehicle(vehicle1);
+            _parkingService.AddVehicle(vehicle2);
+            _withdrawTimer.FireElapsedEvent();
+            _withdrawTimer.FireElapsedEvent();
+
+            var lastParkingTransactions = _parkingService.GetLastParkingTransactions();
+
+            Assert.Equal(17m, lastParkingTransactions.Sum(tr => tr.Sum));
+        }
+
+        [Fact]
+        public void GetLastParkingTransactions_WhenTruckAndBusAfter2WithdrawTimeouts_ThenTransactionsSumIs17Test3()
+        {
+            var vehicle1 = new Vehicle("AA-0001-AA", VehicleType.Truck, 100);
+            var vehicle2 = new Vehicle("AA-0002-AA", VehicleType.Bus, 100);
+            _parkingService.AddVehicle(vehicle1);
+            _parkingService.AddVehicle(vehicle2);
+            _withdrawTimer.FireElapsedEvent();
+            _withdrawTimer.FireElapsedEvent();
+
+            var lastParkingTransactions = _parkingService.GetLastParkingTransactions();
+
+            Assert.Equal(17m, lastParkingTransactions.Sum(tr => tr.Sum));
+        }
+
+        [Fact]
+        public void GetLastParkingTransactions_WhenTruckAndBusAfter2WithdrawTimeouts_ThenTransactionsSumIs17Test4()
+        {
+            var vehicle1 = new Vehicle("AA-0001-AA", VehicleType.Truck, 100);
+            var vehicle2 = new Vehicle("AA-0002-AA", VehicleType.Bus, 100);
+            _parkingService.AddVehicle(vehicle1);
+            _parkingService.AddVehicle(vehicle2);
+            _withdrawTimer.FireElapsedEvent();
+            _withdrawTimer.FireElapsedEvent();
+
+            var lastParkingTransactions = _parkingService.GetLastParkingTransactions();
+
+            Assert.Equal(17m, lastParkingTransactions.Sum(tr => tr.Sum));
+        }
+
+        [Fact]
         public void WhenLogTimerIsElapsed_ThenWriteLogIsHappened()
         {
             _logTimer.FireElapsedEvent();

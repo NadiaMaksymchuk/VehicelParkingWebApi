@@ -6,6 +6,6 @@ namespace CoolParking.BL.Models
     {
         public decimal Balance { get; set; }
 
-        public List<Vehicle> Vehicles = new List<Vehicle>(10);
+        public List<Vehicle> Vehicles = new List<Vehicle>(Settings.CapacityOfParking);
     }
 }

@@ -30,27 +30,8 @@ namespace CoolParking.BL.Services
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            try
-            {
-                if (!this.IsDisposed)
-                {
-                    if (disposing)
-                    {
-                        Stop();
-                    }
-                }
-            }
-            finally
-            {
-                this.IsDisposed = true;
-            }
-
+            _timer=null;
+            _timer.Dispose();
         }
 
     }

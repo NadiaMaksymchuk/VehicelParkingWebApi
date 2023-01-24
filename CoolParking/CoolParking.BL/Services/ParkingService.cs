@@ -6,33 +6,41 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Timers;
 
 namespace CoolParking.BL.Services
 {
-    public class ParkingService : IParkingService
+    public class ParkingService : IParkingService, IDisposable
     {
         readonly ITimerService _withdrawTimer;
         readonly ITimerService _logTimer;
         readonly ILogService _logService;
         static List<TransactionInfo> _transactionInfos = new List<TransactionInfo>();
-        public static Parking _parking { get; private set; }
+        private static Parking _parking;
 
-        public bool IsDisposed { get; private set; }
+        private bool IsDisposed = false;
 
         public ParkingService(ITimerService withdrawTimer, ITimerService logTimer, ILogService logService)
         {
             _withdrawTimer = withdrawTimer;
             _logTimer = logTimer;
             _logService = logService;
-            _parking = new Parking();
-            _withdrawTimer.Interval = (double)Settings.SettingsData["paymentWriteOffPeriod"];
-            _logTimer.Interval = (double)Settings.SettingsData["thePeriodOfWritingToTheLog"];
+            _withdrawTimer.Interval = (double)Settings.PaymentWriteOffPeriod;
+            _logTimer.Interval = (double)Settings.PeriodOfWritingToTheLog;
             _withdrawTimer.Elapsed += new ElapsedEventHandler(GetBerthage);
             _logTimer.Elapsed += new ElapsedEventHandler(WritteAllTransactionInLog);
             _logTimer.Start();
             _withdrawTimer.Start();
+        }
+
+        public static Parking Parking
+        {
+            get
+            {
+                return _parking ??= new Parking();
+            }
         }
 
         public ResponseHendler<Vehicle> AddVehicle(Vehicle vehicle)
@@ -46,16 +54,15 @@ namespace CoolParking.BL.Services
                 };
             }
 
-            var count = _parking.Vehicles.Where(x => x != null).ToList().Count;
-            if (count < 10)
+            if (Parking.Vehicles.Count < 10)
             {
-                if (_parking.Vehicles.Any(x => x.Id == vehicle.Id))
+                if (Parking.Vehicles.Any(x => x.Id == vehicle.Id))
                 {
                     throw new ArgumentException();
                 }
                 else
                 {
-                    _parking.Vehicles.Add(vehicle);
+                    Parking.Vehicles.Add(vehicle);
                     return new ResponseHendler<Vehicle>()
                     {
                         StatusCode = HttpStatusCode.Created,
@@ -80,7 +87,7 @@ namespace CoolParking.BL.Services
                 };
             }
 
-            Vehicle vehicle = _parking.Vehicles.FirstOrDefault(x => x.Id == id);
+            Vehicle vehicle = Parking.Vehicles.FirstOrDefault(x => x.Id == id);
 
             if (vehicle is null)
             {
@@ -109,29 +116,25 @@ namespace CoolParking.BL.Services
 
         public void WritteAllTransactionInLog(Object source, ElapsedEventArgs e)
         {
-            if (_transactionInfos.Count != 0)
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (var transaction in _transactionInfos.ToList())
             {
-                string writte = "";
-                foreach (var transaction in _transactionInfos.ToList())
-                {
-                    writte += transaction.ToString();
-                }
-                _transactionInfos.Clear();
-                _logService.Write(writte);
+                stringBuilder.Append(transaction.ToString());
             }
+            _transactionInfos.Clear();
+            _logService.Write(stringBuilder.ToString());
         }
 
         public static void GetBerthage(Object source, ElapsedEventArgs e)
         {
-            var existenVehicle = _parking.Vehicles.Where(x => x != null).ToList();
-            if (existenVehicle.Count != 0)
+            if (Parking.Vehicles.Count != 0)
             {
-                foreach (var vehicle in existenVehicle)
+                foreach (var vehicle in Parking.Vehicles)
                 {
                     if (vehicle.Balance >= Settings.Tariffes[vehicle.VehicleType])
                     {
                         var summa = Settings.Tariffes[vehicle.VehicleType];
-                        _parking.Balance += summa;
+                        Parking.Balance += summa;
                         vehicle.Balance -= summa;
                         TransactionInfo transactionInfo = new TransactionInfo(vehicle, summa);
                         _transactionInfos.Add(transactionInfo);
@@ -139,8 +142,8 @@ namespace CoolParking.BL.Services
                     }
                     else if (vehicle.Balance <= 0)
                     {
-                        var summa = Settings.Tariffes[vehicle.VehicleType] * Settings.SettingsData["fineRate"];
-                        _parking.Balance += summa;
+                        var summa = Settings.Tariffes[vehicle.VehicleType] * Settings.FineRate;
+                        Parking.Balance += summa;
                         vehicle.Balance -= summa;
                         TransactionInfo transactionInfo = new TransactionInfo(vehicle, summa);
                         _transactionInfos.Add(transactionInfo);
@@ -149,8 +152,8 @@ namespace CoolParking.BL.Services
                     {
                         var lastPositiveSummaOnVechicleBalance = vehicle.Balance;
 
-                        var summa = (Settings.Tariffes[vehicle.VehicleType] - lastPositiveSummaOnVechicleBalance) * Settings.SettingsData["fineRate"] + lastPositiveSummaOnVechicleBalance;
-                        _parking.Balance += summa;
+                        var summa = (Settings.Tariffes[vehicle.VehicleType] - lastPositiveSummaOnVechicleBalance) * Settings.FineRate + lastPositiveSummaOnVechicleBalance;
+                        Parking.Balance += summa;
                         vehicle.Balance -= summa;
 
                         TransactionInfo transactionInfo = new TransactionInfo(vehicle, summa);
@@ -163,18 +166,17 @@ namespace CoolParking.BL.Services
 
         public decimal GetBalance()
         {
-            return _parking.Balance;
+            return Parking.Balance;
         }
 
         public int GetCapacity()
         {
-            return (int)Settings.SettingsData["sizeOfParking"];
+            return (int)Settings.CapacityOfParking;
         }
 
         public int GetFreePlaces()
         {
-            var count = _parking.Vehicles.Where(x => x != null).ToList();
-            return (int)(Settings.SettingsData["sizeOfParking"] - count.Count);
+            return (int)(Settings.CapacityOfParking - Parking.Vehicles.Count);
         }
 
         public TransactionInfo[] GetLastParkingTransactions()
@@ -184,9 +186,7 @@ namespace CoolParking.BL.Services
 
         public ReadOnlyCollection<Vehicle> GetVehicles()
         {
-            ReadOnlyCollection<Vehicle> readOnlyVehicles =
-            new ReadOnlyCollection<Vehicle>(_parking.Vehicles.Where(x => x != null).ToList());
-            return readOnlyVehicles;
+           return Parking.Vehicles.AsReadOnly();
         }
 
         public string ReadFromLog()
@@ -205,7 +205,7 @@ namespace CoolParking.BL.Services
                 };
             }
 
-            var removeVehicle = _parking.Vehicles.FirstOrDefault(x => x.Id == vehicleId);
+            var removeVehicle = Parking.Vehicles.FirstOrDefault(x => x.Id == vehicleId);
 
             if (removeVehicle is null)
             {
@@ -222,7 +222,7 @@ namespace CoolParking.BL.Services
             }
             else
             {
-                _parking.Vehicles.Remove(removeVehicle);
+                Parking.Vehicles.Remove(removeVehicle);
                 return new ResponseHendler<Vehicle>()
                 {
                     StatusCode = HttpStatusCode.NoContent
@@ -246,7 +246,7 @@ namespace CoolParking.BL.Services
                 };
             }
 
-            var topUpVehicle = _parking.Vehicles.FirstOrDefault(x => x.Id == vehicleId);
+            var topUpVehicle = Parking.Vehicles.FirstOrDefault(x => x.Id == vehicleId);
 
             if (topUpVehicle is null)
             {
@@ -257,7 +257,7 @@ namespace CoolParking.BL.Services
                 };
             }
 
-            
+
 
             topUpVehicle.Balance += sum;
             return new ResponseHendler<Vehicle>()
@@ -275,25 +275,19 @@ namespace CoolParking.BL.Services
 
         protected virtual void Dispose(bool disposing)
         {
-            try
+            if (IsDisposed) return;
+
+            if (disposing)
             {
-                if (!this.IsDisposed)
-                {
-                    if (disposing)
-                    {
-                        _withdrawTimer.Dispose();
-                        _logTimer.Dispose();
-                        _parking = null;
-                        _withdrawTimer.Stop();
-                        _logTimer.Stop();
-                    }
-                }
-            }
-            finally
-            {
-                this.IsDisposed = true;
+                _parking = null;
+                _transactionInfos.Clear();
+                _withdrawTimer.Elapsed -= new ElapsedEventHandler(GetBerthage);
+                _logTimer.Elapsed -= new ElapsedEventHandler(WritteAllTransactionInLog);
+                _withdrawTimer.Dispose();
+                _logTimer.Dispose();
             }
 
+            IsDisposed = true;
         }
     }
 }

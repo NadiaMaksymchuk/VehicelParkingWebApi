@@ -35,16 +35,36 @@ namespace CoolParking
 
             switch (MenuLogic.Menu(curItem, menuItems))
             {
-                case 0: GetBalanceMenu(); break;
-                case 1: GetById(); break;
-                case 2: FreePlacesMenu(); break;
-                case 3: GetLastParkingTransactionsMenu(); break;
-                case 4: ReadFromLogMenu(); break;
-                case 5: AllVehicleMenu(); break;
-                case 6: AddVehicleMenu(); break;
-                case 7: RemoveVehicleMenu(); break;
-                case 8: TopUpVehicleMenu(); break;
-                case 9: Work = false; return;
+                case 0: 
+                    GetBalanceMenu(); 
+                    break;
+                case 1: 
+                    GetById(); 
+                    break;
+                case 2: 
+                    FreePlacesMenu(); 
+                    break;
+                case 3: 
+                    GetLastParkingTransactionsMenu(); 
+                    break;
+                case 4: 
+                    ReadFromLogMenu(); 
+                    break;
+                case 5: 
+                    AllVehicleMenu(); 
+                    break;
+                case 6: 
+                    AddVehicleMenu(); 
+                    break;
+                case 7: 
+                    RemoveVehicleMenu(); 
+                    break;
+                case 8:
+                    TopUpVehicleMenu();
+                    break;
+                case 9: 
+                    Work = false; 
+                    return;
             }
         }
 
@@ -55,8 +75,13 @@ namespace CoolParking
 
             switch (MenuLogic.Menu(curItem, menuSelect))
             {
-                case 0: _parkingClient.GetBalance(); Console.ReadKey(); break;
-                case 1: FirstMenu(); break;
+                case 0: 
+                    _parkingClient.GetBalance(); 
+                    Console.ReadKey(); 
+                    break;
+                case 1: 
+                    FirstMenu(); 
+                    break;
             }
         }
 
@@ -73,7 +98,9 @@ namespace CoolParking
                     _vehiclesClient.GetVehicleById(id);
                     Console.ReadKey();
                     break;
-                case 1: FirstMenu(); break;
+                case 1: 
+                    FirstMenu(); 
+                    break;
             }
         }
 
@@ -84,8 +111,13 @@ namespace CoolParking
 
             switch (MenuLogic.Menu(curItem, menuSelect))
             {
-                case 0: _parkingClient.GetFreePlaces(); Console.ReadKey(); break;
-                case 1: FirstMenu(); break;
+                case 0: 
+                    _parkingClient.GetFreePlaces(); 
+                    Console.ReadKey(); 
+                    break;
+                case 1:
+                    FirstMenu(); 
+                    break;
             }
         }
 
@@ -96,8 +128,13 @@ namespace CoolParking
 
             switch (MenuLogic.Menu(curItem, menuSelect))
             {
-                case 0: _transactionsClient.GetLastParkingTransactions(); Console.ReadKey(); break;
-                case 1: FirstMenu(); break;
+                case 0: 
+                    _transactionsClient.GetLastParkingTransactions(); 
+                    Console.ReadKey(); 
+                    break;
+                case 1: 
+                    FirstMenu(); 
+                    break;
             }
         }
 
@@ -108,8 +145,13 @@ namespace CoolParking
 
             switch (MenuLogic.Menu(curItem, menuSelect))
             {
-                case 0: _transactionsClient.GetAllParkingTransactions(); Console.ReadKey(); break;
-                case 1: FirstMenu(); break;
+                case 0: 
+                    _transactionsClient.GetAllParkingTransactions(); 
+                    Console.ReadKey(); 
+                    break;
+                case 1: 
+                    FirstMenu(); 
+                    break;
             }
         }
 
@@ -120,8 +162,13 @@ namespace CoolParking
 
             switch (MenuLogic.Menu(curItem, menuSelect))
             {
-                case 0: _vehiclesClient.GetVehicles(); Console.ReadKey(); break;
-                case 1: FirstMenu(); break;
+                case 0: 
+                    _vehiclesClient.GetVehicles(); 
+                    Console.ReadKey(); 
+                    break;
+                case 1: 
+                    FirstMenu(); 
+                    break;
             }
         }
 
@@ -155,7 +202,9 @@ namespace CoolParking
                     _vehiclesClient.AddVehicle(new Vehicle (id, vehicleType, balance));
                     Console.ReadKey();
                     break;
-                case 1: FirstMenu(); break;
+                case 1: 
+                    FirstMenu(); 
+                    break;
             }
         }
 
@@ -173,7 +222,9 @@ namespace CoolParking
                     _vehiclesClient.RemoveVehicle(id);
                     Console.ReadKey();
                     break;
-                case 1: FirstMenu(); break;
+                case 1: 
+                    FirstMenu(); 
+                    break;
             }
         }
 
@@ -195,7 +246,9 @@ namespace CoolParking
                     _transactionsClient.TopUpVehicle(topUpVehicle);
                     Console.ReadKey();
                     break;
-                case 1: FirstMenu(); break;
+                case 1: 
+                    FirstMenu(); 
+                    break;
             }
         }
     }
