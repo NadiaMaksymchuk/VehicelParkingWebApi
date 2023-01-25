@@ -10,6 +10,7 @@ namespace CoolParking.FormatResponce.AbstractClass
         public BaseClass()
         {
             _httpClient = new HttpClient();
+            _httpClient.BaseAddress = new Uri("https://localhost:5001/api/");
         }
 
         protected static T Deserializer<T>(string data)

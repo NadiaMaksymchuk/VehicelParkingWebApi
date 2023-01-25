@@ -1,5 +1,4 @@
 ﻿using CoolParking.BL.Interfaces;
-using CoolParking.BL.Models;
 using System;
 using System.Timers;
 
@@ -13,7 +12,7 @@ namespace CoolParking.BL.Services
         private static Timer _timer;
 
         public event ElapsedEventHandler Elapsed;
-        
+
         public void Start()
         {
             _timer = new Timer(Interval);
@@ -30,27 +29,8 @@ namespace CoolParking.BL.Services
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            try
-            {
-                if (!this.IsDisposed)
-                {
-                    if (disposing)
-                    {
-                        Stop();
-                    }
-                }
-            }
-            finally
-            {
-                this.IsDisposed = true;
-            }
-
+            _timer = null;
+            _timer.Dispose();
         }
 
     }

@@ -6,19 +6,18 @@ namespace CoolParking.FormatResponce
 {
     internal class TransactionsClient : BaseClass
     {
-        private const string BaseURL = "https://localhost:5001/api/transactions";
+        private const string ControllerName = "transactions";
 
         public TransactionsClient() : base() { }
 
         public void GetLastParkingTransactions()
         {
-            string url = $"{BaseURL}/last";
-            var responce = _httpClient.GetAsync(url).Result;
+            var response = _httpClient.GetAsync($"{ControllerName}/last").Result;
+            var content = response.Content.ReadAsStringAsync().Result;
 
-            if (responce.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                var data = _httpClient.GetStringAsync(url).Result;
-                var transactions = Deserializer<List<TransactionInfo>>(data);
+                var transactions = Deserializer<List<TransactionInfo>>(content);
 
                 foreach (var transaction in transactions)
                 {
@@ -27,33 +26,33 @@ namespace CoolParking.FormatResponce
             }
             else
             {
-                Console.WriteLine(responce.ReasonPhrase);
+                Console.WriteLine(content);
             }
         }
 
         public void GetAllParkingTransactions()
         {
-            string url = $"{BaseURL}/all";
-            var responce = _httpClient.GetAsync(url).Result;
+            var response = _httpClient.GetAsync($"{ControllerName}/all").Result;
 
-            if (responce.StatusCode == HttpStatusCode.OK)
-            {
-                var data = _httpClient.GetStringAsync(url).Result;
-
-                Console.WriteLine(data);
-            }
-            else
-            {
-                Console.WriteLine(responce.ReasonPhrase);
-            }
+            var content = response.Content.ReadAsStringAsync().Result;
+            Console.WriteLine(content);
         }
 
         public void TopUpVehicle(TopUpVehicle topUpVehicle)
         {
-            string url = $"{BaseURL}/topUpVehicle";
             var data = Serializer<TopUpVehicle>(topUpVehicle);
-            var response = _httpClient.PutAsync(url, data).Result;
-            Console.WriteLine(response.ReasonPhrase);
+            var response = _httpClient.PutAsync($"{ControllerName}/topUpVehicle", data).Result;
+            var content = response.Content.ReadAsStringAsync().Result;
+
+            if(response.StatusCode != HttpStatusCode.OK)
+            {
+                Console.WriteLine(content);
+            }
+            
+            if(response.StatusCode == HttpStatusCode.OK)
+            {
+                Console.WriteLine("Successfully changed");
+            }
         }
     }
 }

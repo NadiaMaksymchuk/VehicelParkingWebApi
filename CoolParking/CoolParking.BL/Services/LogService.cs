@@ -20,21 +20,19 @@ namespace CoolParking.BL.Services
 
         public string Read()
         {
-            string result = "";
-            if (File.Exists(_logFilePath))
-            {
-                using (StreamReader streamReader = File.OpenText(_logFilePath))
-                {
-                    string line;
-                    while ((line = streamReader.ReadLine()) != null)
-                    {
-                        result += line + "\n";
-                    }
-                }
-            }
-            else
+            string result = String.Empty;
+            if (!File.Exists(_logFilePath))
             {
                 throw new InvalidOperationException();
+            }
+
+            using (StreamReader streamReader = File.OpenText(_logFilePath))
+            {
+                string line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    result += line + "\n";
+                }
             }
 
             return result;
