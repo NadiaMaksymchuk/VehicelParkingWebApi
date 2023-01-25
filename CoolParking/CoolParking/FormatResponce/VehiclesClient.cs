@@ -6,62 +6,81 @@ namespace CoolParking.FormatResponce
 {
     internal class VehiclesClient : BaseClass
     {
-        private const string BaseURL = "https://localhost:5001/api/vehicles";
+        private const string ControllerName = "vehicles";
 
         public VehiclesClient() : base() { }
 
         public void GetVehicles()
         {
-            string url = $"{BaseURL}";
-            var responce = _httpClient.GetAsync(url).Result;
+            var response = _httpClient.GetAsync(ControllerName).Result;
+            var content = response.Content.ReadAsStringAsync().Result;
 
-            if (responce.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                var data = _httpClient.GetStringAsync(url).Result;
-                var vehicles = Deserializer<List<Vehicle>>(data);
+                var vehicles = Deserializer<List<Vehicle>>(content);
 
                 foreach (var vehicle in vehicles)
                 {
                     Console.WriteLine(vehicle.ToString());
                 }
             }
-            else
+
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                Console.WriteLine(responce.ReasonPhrase);
+                Console.WriteLine(content);
             }
         }
 
         public void GetVehicleById(string id)
         {
-            string url = $"{BaseURL}/{id}";
-            var responce = _httpClient.GetAsync(url).Result;
+            var response = _httpClient.GetAsync($"{ControllerName}/{id}").Result;
 
-            if (responce.StatusCode == HttpStatusCode.OK)
+            var content = response.Content.ReadAsStringAsync().Result;
+
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                var data = _httpClient.GetStringAsync(url).Result;
-                var vehicle = Deserializer<Vehicle>(data);
+                var vehicle = Deserializer<Vehicle>(content);
 
                 Console.WriteLine(vehicle.ToString());
             }
-            else
+
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                Console.WriteLine(responce.ReasonPhrase);
+                Console.WriteLine(content);
             }
         }
 
         public void AddVehicle(Vehicle vehicle)
         {
-            string url = $"{BaseURL}";
             var data = Serializer<Vehicle>(vehicle);
-            var response = _httpClient.PostAsync(url, data).Result;
-            Console.WriteLine(response.ReasonPhrase);
+            var response = _httpClient.PostAsync(ControllerName, data).Result;
+
+            if (response.StatusCode == HttpStatusCode.Created)
+            {
+                Console.WriteLine("Added");
+            }
+            
+            if(response.StatusCode != HttpStatusCode.Created)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Console.WriteLine(content);
+            }
         }
 
         public void RemoveVehicle(string id)
         {
-            string url = $"{BaseURL}/{id}";
-            var response = _httpClient.DeleteAsync(url).Result;
-            Console.WriteLine(response.ReasonPhrase);
+            var response = _httpClient.DeleteAsync($"{ControllerName}/{id}").Result;
+            var content = response.Content.ReadAsStringAsync().Result;
+
+            if(response.StatusCode == HttpStatusCode.NoContent)
+            {
+                Console.WriteLine("Successfully removed");
+            }
+
+            if (response.StatusCode != HttpStatusCode.NoContent)
+            {
+                Console.WriteLine(content);
+            }
         }
     }
 }

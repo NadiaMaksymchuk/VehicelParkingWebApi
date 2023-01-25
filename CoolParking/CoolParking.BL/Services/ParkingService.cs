@@ -27,8 +27,8 @@ namespace CoolParking.BL.Services
             _withdrawTimer = withdrawTimer;
             _logTimer = logTimer;
             _logService = logService;
-            _withdrawTimer.Interval = (double)Settings.PaymentWriteOffPeriod;
-            _logTimer.Interval = (double)Settings.PeriodOfWritingToTheLog;
+            _withdrawTimer.Interval = Settings.PaymentWriteOffPeriod;
+            _logTimer.Interval = Settings.PeriodOfWritingToTheLog;
             _withdrawTimer.Elapsed += new ElapsedEventHandler(GetBerthage);
             _logTimer.Elapsed += new ElapsedEventHandler(WritteAllTransactionInLog);
             _logTimer.Start();
@@ -54,26 +54,30 @@ namespace CoolParking.BL.Services
                 };
             }
 
-            if (Parking.Vehicles.Count < 10)
+            if (Parking.Vehicles.Count >= 10)
             {
-                if (Parking.Vehicles.Any(x => x.Id == vehicle.Id))
+                return new ResponseHendler<Vehicle>()
                 {
-                    throw new ArgumentException();
-                }
-                else
-                {
-                    Parking.Vehicles.Add(vehicle);
-                    return new ResponseHendler<Vehicle>()
-                    {
-                        StatusCode = HttpStatusCode.Created,
-                        Data = vehicle
-                    };
-                }
+                    Error = "The parking lot is full!",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
             }
-            else
+
+            if (Parking.Vehicles.Any(x => x.Id == vehicle.Id))
             {
-                throw new InvalidOperationException();
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "A vehicle with this id is already in the parking lot!",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
             }
+
+            Parking.Vehicles.Add(vehicle);
+            return new ResponseHendler<Vehicle>()
+            {
+                StatusCode = HttpStatusCode.Created,
+                Data = vehicle
+            };
         }
 
         public ResponseHendler<Vehicle> GetByIdVehicle(string id)
@@ -108,10 +112,13 @@ namespace CoolParking.BL.Services
         private bool ValidateVehicleId(string id)
         {
             Regex regex = new Regex(Vehicle.RegexString);
+
             if (regex.IsMatch(id))
+            {
                 return true;
-            else
-                return false;
+            }
+
+            return false;
         }
 
         public void WritteAllTransactionInLog(Object source, ElapsedEventArgs e)
@@ -171,12 +178,12 @@ namespace CoolParking.BL.Services
 
         public int GetCapacity()
         {
-            return (int)Settings.CapacityOfParking;
+            return Settings.CapacityOfParking;
         }
 
         public int GetFreePlaces()
         {
-            return (int)(Settings.CapacityOfParking - Parking.Vehicles.Count);
+            return (Settings.CapacityOfParking - Parking.Vehicles.Count);
         }
 
         public TransactionInfo[] GetLastParkingTransactions()
@@ -186,7 +193,7 @@ namespace CoolParking.BL.Services
 
         public ReadOnlyCollection<Vehicle> GetVehicles()
         {
-           return Parking.Vehicles.AsReadOnly();
+            return Parking.Vehicles.AsReadOnly();
         }
 
         public string ReadFromLog()
@@ -218,23 +225,29 @@ namespace CoolParking.BL.Services
 
             if (removeVehicle.Balance <= 0)
             {
-                throw new InvalidOperationException();
-            }
-            else
-            {
-                Parking.Vehicles.Remove(removeVehicle);
                 return new ResponseHendler<Vehicle>()
                 {
-                    StatusCode = HttpStatusCode.NoContent
+                    Error = "The balance vehicle is negative, pay off the debt",
+                    StatusCode = HttpStatusCode.BadRequest
                 };
             }
+
+            Parking.Vehicles.Remove(removeVehicle);
+            return new ResponseHendler<Vehicle>()
+            {
+                StatusCode = HttpStatusCode.NoContent
+            };
         }
 
         public ResponseHendler<Vehicle> TopUpVehicle(string vehicleId, decimal sum)
         {
-            if (sum <= 0)
+            if (sum < 0)
             {
-                throw new ArgumentException();
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "Negative amount summa",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
             }
 
             if (!ValidateVehicleId(vehicleId) || sum < 0)
@@ -256,8 +269,6 @@ namespace CoolParking.BL.Services
                     StatusCode = HttpStatusCode.NotFound
                 };
             }
-
-
 
             topUpVehicle.Balance += sum;
             return new ResponseHendler<Vehicle>()

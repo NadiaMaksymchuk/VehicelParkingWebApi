@@ -4,9 +4,9 @@ namespace CoolParking.BL.Models
 {
     public struct TransactionInfo
     {
-        public decimal Sum { get; private set; }
-        public string VehicleId { get; private set; }
-        public DateTime Created { get; private set; }
+        public decimal Sum { get; set; }
+        public string VehicleId { get; set; }
+        public DateTime Created { get; set; }
 
         public TransactionInfo(Vehicle vehicle, decimal payment)
         {

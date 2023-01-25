@@ -5,57 +5,55 @@ namespace CoolParking.FormatResponce
 {
     internal class ParkingClient : BaseClass
     {
-        private const string BaseURL = "https://localhost:5001/api/parking";
+        private const string ControllerName = "parking";
 
         public ParkingClient() : base() { }
 
         public void GetBalance()
         {
-            string url = $"{BaseURL}/balance";
-            var responce = _httpClient.GetAsync(url).Result;
+            var response = _httpClient.GetAsync($"{ControllerName}/balance").Result;
+            var content = response.Content.ReadAsStringAsync().Result;
 
-            if (responce.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                var data = _httpClient.GetStringAsync(url).Result;
-                Console.WriteLine($"Balance: {Deserializer<decimal>(data)}");
+                Console.WriteLine($"Balance: {Deserializer<decimal>(content)}");
             }
-            else
+
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                Console.WriteLine(responce.ReasonPhrase);
+                Console.WriteLine(content);
             }
         }
 
         public void GetFreePlaces()
         {
-            string url = $"{BaseURL}/freePlaces";
+            var response = _httpClient.GetAsync($"{ControllerName}/freePlaces").Result;
+            var content = response.Content.ReadAsStringAsync().Result;
 
-            var responce = _httpClient.GetAsync(url).Result;
-
-            if (responce.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                var data = _httpClient.GetStringAsync(url).Result;
-                Console.WriteLine($"Free plces: {Deserializer<int>(data)}");
+                Console.WriteLine($"Free places: {Deserializer<int>(content)}");
             }
-            else
+
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                Console.WriteLine(responce.ReasonPhrase);
+                Console.WriteLine(content);
             }
         }
 
         public void GetCapacity()
         {
-            string url = $"{BaseURL}/capacity";
+            var response = _httpClient.GetAsync($"{ControllerName}/capacity").Result;
+            var content = response.Content.ReadAsStringAsync().Result;
 
-            var responce = _httpClient.GetAsync(url).Result;
-
-            if (responce.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                var data = _httpClient.GetStringAsync(url).Result;
-                Console.WriteLine($"Capacity: {Deserializer<int>(data)}");
+                Console.WriteLine($"Capacity: {Deserializer<int>(content)}");
             }
-            else
+
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                Console.WriteLine(responce.ReasonPhrase);
+                Console.WriteLine(content);
             }
         }
     }

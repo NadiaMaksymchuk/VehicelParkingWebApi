@@ -69,8 +69,9 @@ namespace CoolParking.BL.Tests
             var vehicle1 = new Vehicle("AA-0001-AA", VehicleType.Bus, 100);
             var vehicle2 = new Vehicle(vehicle1.Id, VehicleType.Motorcycle, 200);
             _parkingService.AddVehicle(vehicle1);
+            var result = _parkingService.AddVehicle(vehicle2);
 
-            Assert.Throws<ArgumentException>(() => _parkingService.AddVehicle(vehicle2));
+            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
         }
 
         [Theory]
@@ -80,7 +81,7 @@ namespace CoolParking.BL.Tests
         {
             var vehicle = new Vehicle(id, vehicleType, balance);
             var result = _parkingService.AddVehicle(vehicle);
-            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode); ;
+            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode); 
         }
 
         [Fact]
@@ -118,8 +119,9 @@ namespace CoolParking.BL.Tests
         {
             var vehicle = new Vehicle("AA-0001-AA", VehicleType.PassengerCar, 100);
             _parkingService.AddVehicle(vehicle);
+            var result = _parkingService.TopUpVehicle("AA-0001-AA", -100);
 
-            Assert.Throws<ArgumentException>(() => _parkingService.TopUpVehicle("AA-0001-AA", -100));
+            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
         }
 
         [Fact]
