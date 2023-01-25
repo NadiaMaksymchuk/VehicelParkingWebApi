@@ -1,6 +1,7 @@
 ﻿using CoolParking.BL.Interfaces;
 using CoolParking.BL.Models;
 using CoolParking.BL.Utility;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -45,7 +46,16 @@ namespace CoolParking.BL.Services
 
         public ResponseHendler<Vehicle> AddVehicle(Vehicle vehicle)
         {
-            if (!ValidateVehicleId(vehicle.Id) || vehicle.Balance <= 0)
+            if (vehicle is null || vehicle.Id is null)
+            {
+                return new ResponseHendler<Vehicle>()
+                {
+                    Error = "Not added! Incorect vehicle data (cannot be null)",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+            
+            if (!ValidateVehicleId(vehicle.Id) || vehicle.Balance <= 0 || !Enum.IsDefined(typeof(VehicleType), vehicle.VehicleType))
             {
                 return new ResponseHendler<Vehicle>()
                 {
